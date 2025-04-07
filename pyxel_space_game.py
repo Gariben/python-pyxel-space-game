@@ -7,7 +7,10 @@ SCREEN_HEIGHT = 240
 HEIGHT_MARGIN = 20
 WIDTH_MARGIN = 10
 
-SHIP_SPEED=3
+DEBUG = 1
+
+SCENE_TTILE = 0
+SCENE_PLAY = 1
 
 class Border:
     def __init__(self,color):
@@ -20,20 +23,32 @@ class Border:
 class Ship:
     def __init__(self, coords, vel, color):
         self.coords = coords
+        self.up_count = 0
+        self.coins = 0
         self.vel = vel
         self.color = color
         self.height = 10
         self.width = 10
 
     def update(self):
-        if ((self.coords[1]-1) > HEIGHT_MARGIN) and pyxel.btn(pyxel.KEY_W):  # Move up
-            self.coords[1] -= SHIP_SPEED
-        if ((self.coords[1]+self.height+1) < SCREEN_HEIGHT-HEIGHT_MARGIN) and pyxel.btn(pyxel.KEY_S):  # Move down
-            self.coords[1] += SHIP_SPEED
+
+        self.coords[0] += self.vel[0]
+        if pyxel.btn(pyxel.KEY_W):  # Move up
+            self.coords[1] -= self.vel[1]
+            self.up_count +=1
+        elif pyxel.btn(pyxel.KEY_S):  # Move down
+            self.coords[1] += self.vel[1]
+        else:
+            if self.up_count>0: self.up_count -=2
 
 
     def draw(self):
-        pyxel.rect(self.coords[0], self.coords[1], self.width, self.height, self.color)
+        if pyxel.btn(pyxel.KEY_W):  # Move up
+            pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
+        if pyxel.btn(pyxel.KEY_S):  # Move down
+            pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
+        else:
+            pyxel.rect(WIDTH_MARGIN, SCREEN_HEIGHT//2, self.width, self.height, self.color)
 
 
 class Star:
@@ -44,13 +59,12 @@ class Star:
 
     def update(self, ship):
         
-        self.coords[0] += self.vel[0]
-        self.coords[1] += self.vel[1]
+        self.coords[0] -= (ship.vel[0]*2)
 
-        if ((ship.coords[1]-1) > HEIGHT_MARGIN) and pyxel.btn(pyxel.KEY_W):
-            self.coords[1] -= SHIP_SPEED//2
-        if ((ship.coords[1]+ship.height+1) < SCREEN_HEIGHT-HEIGHT_MARGIN) and pyxel.btn(pyxel.KEY_S):  # Move up
-            self.coords[1] += SHIP_SPEED//2
+        if pyxel.btn(pyxel.KEY_W):
+            self.coords[1] += ship.vel[1]
+        if pyxel.btn(pyxel.KEY_S):
+            self.coords[1] -= ship.vel[1]
 
         if self.coords[0] < 0: 
             self.coords[0] = SCREEN_WIDTH
@@ -63,14 +77,18 @@ class Star:
         pyxel.pset(self.coords[0], self.coords[1], self.color)
 
 
+#------------------------------------------------------------------------------
+# Main Application
+#------------------------------------------------------------------------------
+
 class App:
     def __init__(self):
         pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, title=GAME_TITLE)
-        self.ship = Ship([0+WIDTH_MARGIN, SCREEN_HEIGHT // 2], [0, 0],pyxel.COLOR_RED)
+        self.ship = Ship([0+WIDTH_MARGIN, SCREEN_HEIGHT // 2], [1,1],pyxel.COLOR_RED)
         self.stars = [
             Star(
                 coords=[pyxel.rndi(0, SCREEN_WIDTH), pyxel.rndi(0, SCREEN_HEIGHT-HEIGHT_MARGIN)],
-                vel=[-pyxel.rndi(1, SHIP_SPEED), 0],
+                vel=[-pyxel.rndi(1, self.ship.vel[0]), 0],
                 color=pyxel.COLOR_WHITE,
             )
             for _ in range(50)  # Create 50 stars
@@ -93,6 +111,10 @@ class App:
             star.draw()
         self.ship.draw()
         self.border.draw()
+        if DEBUG and (pyxel.btn(pyxel.KEY_W) or self.ship.up_count): pyxel.text(0, 0, "W"+str(self.ship.up_count), pyxel.COLOR_WHITE)
+        if DEBUG and pyxel.btn(pyxel.KEY_S): pyxel.text(0, 6, "S", pyxel.COLOR_WHITE)
+        if DEBUG: pyxel.text(WIDTH_MARGIN, HEIGHT_MARGIN-11, "Xvel:"+str(self.ship.vel[0])+"X:"+str(self.ship.coords[0]), pyxel.COLOR_WHITE)
+        if DEBUG: pyxel.text(WIDTH_MARGIN, HEIGHT_MARGIN-5, "Yvel:"+str(self.ship.vel[1])+"Y:"+str(self.ship.coords[1]), pyxel.COLOR_WHITE)
         #rect(x, y, w, h, col)
         #pyxel.text(55, 41, "Hello, Pyxel!", pyxel.frame_count % 16)
 
