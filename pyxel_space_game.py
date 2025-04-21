@@ -7,7 +7,7 @@ SCREEN_HEIGHT = 240
 HEIGHT_MARGIN = 20
 WIDTH_MARGIN = 10
 
-DEBUG = 1
+DEBUG = 0
 
 SCENE_TTILE = 0
 SCENE_PLAY = 1
@@ -43,11 +43,11 @@ class Ship:
 
 
     def draw(self):
-        if pyxel.btn(pyxel.KEY_W):  # Move up
-            pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
-        if pyxel.btn(pyxel.KEY_S):  # Move down
-            pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
-        else:
+        #if pyxel.btn(pyxel.KEY_W):  # Move up
+        #    pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
+        #if pyxel.btn(pyxel.KEY_S):  # Move down
+        #    pyxel.rect(WIDTH_MARGIN, (SCREEN_HEIGHT//2)+(self.height//4), self.width, self.height//2, pyxel.COLOR_GREEN)
+        #else:
             pyxel.rect(WIDTH_MARGIN, SCREEN_HEIGHT//2, self.width, self.height, self.color)
 
 
